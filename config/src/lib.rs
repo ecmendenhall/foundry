@@ -1446,6 +1446,40 @@ mod tests {
     }
 
     #[test]
+    fn test_default_test_path() {
+        figment::Jail::expect_with(|_| {
+            let config = Config::default();
+            let paths_config = config.project_paths();
+            assert_eq!(
+                paths_config.tests,
+                PathBuf::from(r"test")
+            );
+            Ok(())
+        });
+    }
+
+    #[test]
+    fn test_custom_test_path() {
+        figment::Jail::expect_with(|jail| {
+            jail.create_file(
+                "foundry.toml",
+                r#"
+                [default]
+                test = "mytest"
+            "#,
+            )?;
+
+            let config = Config::load();
+            let paths_config = config.project_paths();
+            assert_eq!(
+                paths_config.tests,
+                PathBuf::from(r"mytest")
+            );
+            Ok(())
+        });
+    }
+
+    #[test]
     fn test_remappings() {
         figment::Jail::expect_with(|jail| {
             jail.create_file(
